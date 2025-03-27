@@ -117,23 +117,32 @@ trait Translatable
         foreach ($attributes as $key => $values) {
             if ($this->isWrapperAttribute($key)) {
                 $this->fill($values);
+
+                unset($attributes[$key]);
+
+                continue;
             }
+
             if (
                 $this->getLocalesHelper()->has($key)
                 && is_array($values)
             ) {
                 $this->getTranslationOrNew($key)->fill($values);
-                unset($attributes[$key]);
-            } else {
-                [$attribute, $locale] = $this->getAttributeAndLocale($key);
 
-                if (
-                    $this->getLocalesHelper()->has($locale)
-                    && $this->isTranslationAttribute($attribute)
-                ) {
-                    $this->getTranslationOrNew($locale)->fill([$attribute => $values]);
-                    unset($attributes[$key]);
-                }
+                unset($attributes[$key]);
+
+                continue;
+            }
+
+            [$attribute, $locale] = $this->getAttributeAndLocale($key);
+
+            if (
+                $this->getLocalesHelper()->has($locale)
+                && $this->isTranslationAttribute($attribute)
+            ) {
+                $this->getTranslationOrNew($locale)->fill([$attribute => $values]);
+
+                unset($attributes[$key]);
             }
         }
 
